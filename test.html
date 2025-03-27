@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/css/ol.css" type="text/css">
+    <style>
+      /* Ensure full-page layout */
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+      }
+      /* Make map container take up full screen */
+      #map-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/ol@v10.4.0/dist/ol.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/geotiff"></script>
+  </head>
+  <body>
+    <div id="map-container"></div>
+    <script type="text/javascript">
+    //   const projection = new ol.proj.Projection({
+    //     code: 'EPSG:32721',
+    //     units: 'm',
+    //   });
+
+      const sourceExtent = [0, 0, 64000, 64000];
+
+      const olMap = new ol.Map({
+        target: 'map-container',
+        view: new ol.View({
+        //   projection: projection,
+        //   center: ol.extent.getCenter(sourceExtent),
+        //   extent: sourceExtent,
+          zoom: 1,
+          minZoom: 10,
+            maxZoom: 17,
+        })
+      });
+
+      const geoTiffLayer = new ol.layer.WebGLTile({
+        id: `geoTiffs`,
+        zIndex: 3,
+        source: new ol.source.GeoTIFF({
+          sources: [
+            {
+              url: 'https://dharani-fetal-brain-atlas.s3.us-west-2.amazonaws.com/data2d/specimen_2/Specimen_2_1000.tif'
+            },
+          ],
+        }),
+      });
+
+      olMap.addLayer(geoTiffLayer);
+      olMap.getView().fit(sourceExtent);
+    </script>
+  </body>
+</html>
