@@ -19,7 +19,7 @@
           return data.map(node => {
             const newNode = {
               ...node,
-              text: node.acronym + ':' + node.name || "(no name)"
+              text: node.acronym + ':' + node.name + '(' + node.id + ')'|| "(no name)"
             };
             if (node.children) {
               newNode.children = convertTreeData(node.children);
