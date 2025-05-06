@@ -5,7 +5,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
   </head>
   <body>
-    <h2>DHARANI Ontology - tree view</h2>
+    <h2>Allen Developing Human Brain Atlas Ontology - tree view</h2>
+    <p>Ref: https://community.brain-map.org/t/atlas-drawing-and-ontologies/2864</p>
     <input type="text" id="search_input" placeholder="Search tree..." style="margin-bottom:10px;width:200px;padding:5px;"/>
     <div id="jstree_demo"></div>
 
@@ -13,7 +14,7 @@
         if (typeof jQuery === 'undefined' || typeof $.jstree === 'undefined') {
             console.log('jquery load issue');
         }
-        var jsonurl = 'http://api.brain-map.org/api/v2/structure_graph_download/16.json';
+        var jsonurl = 'https://api.brain-map.org/api/v2/structure_graph_download/16.json';
       
         function convertTreeData(data) {
           return data.map(node => {
