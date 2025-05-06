@@ -1,0 +1,59 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+  </head>
+  <body>
+    <h2>DHARANI Ontology - tree view</h2>
+    <input type="text" id="search_input" placeholder="Search tree..." style="margin-bottom:10px;width:200px;padding:5px;"/>
+    <div id="jstree_demo"></div>
+
+    <script>
+        if (typeof jQuery === 'undefined' || typeof $.jstree === 'undefined') {
+            console.log('jquery load issue');
+        }
+        var jsonurl = 'http://api.brain-map.org/api/v2/structure_graph_download/16.json';
+      
+        function convertTreeData(data) {
+          return data.map(node => {
+            const newNode = {
+              ...node,
+              text: node.acronym + ':' + node.name || "(no name)"
+            };
+            if (node.children) {
+              newNode.children = convertTreeData(node.children);
+            }
+            return newNode;
+          });
+        }      
+      
+        $.getJSON(jsonurl, function(data) {
+            // Initialize jstree with search plugin
+            $('#jstree_demo').jstree({
+                
+                'core': {
+                    'multiple' : false,
+                    'animation' : 0,
+                    'themes': {'icons':false,},
+                    'data': data['msg'][0]['children'][0]['children'],
+                },                
+                'plugins': ['search'],
+                'search': {
+                    'show_only_matches':true,
+                    'show_only_matches_children':true,
+                }
+            });
+            
+            // Bind search input to jstree search function
+            $('#search_input').on('keyup', function() {
+                var searchValue = $(this).val();
+                
+                //if (typeof($('#jstree_demo').jstree)==='function') {
+                    $('#jstree_demo').jstree(true).search(searchValue);
+                //}
+            });
+        });
+    </script>
+  </body>
+</html>
