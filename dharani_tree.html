@@ -13,7 +13,9 @@
         if (typeof jQuery === 'undefined' || typeof $.jstree === 'undefined') {
             console.log('jquery load issue');
         }
-        $(document).ready(function() {
+        var jsonurl = 'https://dharani-fetal-brain-atlas.s3.us-west-2.amazonaws.com/ontology/ontology.json';
+      
+        $.getJSON(jsonurl, function(data) {
             // Initialize jstree with search plugin
             $('#jstree_demo').jstree({
                 
@@ -21,9 +23,7 @@
                     'multiple' : false,
                     'animation' : 0,
                     'themes': {'icons':false,},
-                    'data': {
-                      'url':'https://dharani-fetal-brain-atlas.s3.us-west-2.amazonaws.com/ontology/ontology.json',
-                    }
+                    'data': data['msg'][0]['children'],
                 },                
                 'plugins': ['search'],
                 'search': {
