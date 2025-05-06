@@ -37,7 +37,7 @@
                     'multiple' : false,
                     'animation' : 0,
                     'themes': {'icons':false,},
-                    'data': data['msg'][0]['children'][0]['children'],
+                    'data': convertTreeData(data['msg'][0]['children'][0]['children']),
                 },                
                 'plugins': ['search'],
                 'search': {
