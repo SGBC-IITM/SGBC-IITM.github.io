@@ -1,65 +1,92 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/css/ol.css" type="text/css">
-    <style>
-      /* Ensure full-page layout */
-      html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-      }
-      /* Make map container take up full screen */
-      #map-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-      }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/ol@v10.4.0/dist/ol.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/geotiff"></script>
-  </head>
-  <body>
-    <div id="map-container"></div>
-    <script type="text/javascript">
-    //   const projection = new ol.proj.Projection({
-    //     code: 'EPSG:32721',
-    //     units: 'm',
-    //   });
 
-      const sourceExtent = [0, 0, 64000, 64000];
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/css/ol.css"
+    type="text/css">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    #map-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/ol@v10.4.0/dist/ol.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/geotiff"></script>
+</head>
+
+<body>
+  <div id="map-container"></div>
+  <script type="text/javascript">
+    function getQueryParam(name, defaultValue) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name) || defaultValue;
+    }
+
+    function updateUrlParams(params) {
+      const newUrl = `${window.location.origin}${window.location.pathname}?specimen=${params.specimen}&id=${params.id}`;
+      history.replaceState(null, '', newUrl);
+    }
+
+    async function init() {
+      const specimen = getQueryParam('specimen', '5');
+      const id = getQueryParam('id', '1579');
+
+      // If any defaults were used, rewrite the URL
+      if (!window.location.search.includes('specimen') || !window.location.search.includes('id')) {
+        updateUrlParams({ specimen, id });
+      }
+
+      const s3Url = `https://dharani-fetal-brain-atlas.s3.us-west-2.amazonaws.com/data2d/specimen_${specimen}/Specimen_${specimen}_${id}.tif`;
+
+      async function getGeoTiffDimensions(url) {
+        const tiff = await GeoTIFF.fromUrl(url, { headers: { Range: "bytes=0-8191" } });
+        const image = await tiff.getImage();
+        return { width: image.getWidth(), height: image.getHeight() };
+      }
+
+      const dims = await getGeoTiffDimensions(s3Url);
+      console.log("Image dimensions:", dims);
+
+      const sourceExtent = [0, 0, dims.width, dims.height];
 
       const olMap = new ol.Map({
         target: 'map-container',
         view: new ol.View({
-        //   projection: projection,
-        //   center: ol.extent.getCenter(sourceExtent),
-        //   extent: sourceExtent,
           zoom: 1,
           minZoom: 10,
-            maxZoom: 17,
+          maxZoom: 17,
         })
+      });
+
+      const geoTifSource = new ol.source.GeoTIFF({
+        sources: [{ url: s3Url }]
       });
 
       const geoTiffLayer = new ol.layer.WebGLTile({
         id: `geoTiffs`,
         zIndex: 3,
-        source: new ol.source.GeoTIFF({
-          sources: [
-            {
-              url: 'https://dharani-fetal-brain-atlas.s3.us-west-2.amazonaws.com/data2d/specimen_2/Specimen_2_1000.tif'
-            },
-          ],
-        }),
+        source: geoTifSource,
       });
 
       olMap.addLayer(geoTiffLayer);
       olMap.getView().fit(sourceExtent);
-    </script>
-  </body>
+    }
+
+    init();
+  </script>
+</body>
+
 </html>
